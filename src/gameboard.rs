@@ -49,7 +49,7 @@ impl GameBoard {
                 center_text("Select Difficulty");
                 center_text("1. Easy, Type 1");
                 center_text("2. Hard, Type 2");
-                input.clear(); //doubt
+                input.clear();
                 io::stdin().read_line(&mut input)?;
                 match input.trim() {
                     "1" => {
@@ -60,7 +60,7 @@ impl GameBoard {
                         self.game_mode = Some(GameMode::HardAi);
                         self.play_game()?;
                     }
-                    _ => return Err("Invalid difficulty selection".into()), //doubt
+                    _ => return Err("Invalid difficulty selection".into()),
                 }
             }
             "2" => {
@@ -73,19 +73,13 @@ impl GameBoard {
         Ok(())
     }
     fn play_game(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        // check game_mode set or not
-        //  let game_mode = self.game_mode.as_ref()
-        //  .ok_or("Game mode not set")?;
         while !self.game_over && self.moves_count < 9 {
             // clearscreen::clear()?;
             // center_text("Tic Tac Toe");
             self.draw_board();
 
-            // if *game_mode == GameMode::TwoPlayer ||
-            //    (*game_mode != GameMode::TwoPlayer && self.player_x_turn)
             if self.game_mode == Some(GameMode::TwoPlayer)
                 || (self.game_mode != Some(GameMode::TwoPlayer) && self.player_x_turn)
-            //doubt
             {
                 center_text(if self.player_x_turn {
                     "Player X's turn,Type a cell between 1-9"
@@ -109,7 +103,7 @@ impl GameBoard {
                 match self.game_mode {
                     Some(GameMode::EasyAi) => self.ai_move_easy()?,
                     Some(GameMode::HardAi) => self.ai_move_hard()?,
-                    _ => unreachable!(), //doubt
+                    _ => unreachable!(),
                 }
             }
 
@@ -216,7 +210,7 @@ impl GameBoard {
         if valid_moves.is_empty() {
             return Err("No valid moves available".into());
         }
-        let idx = rand::thread_rng().gen_range(0..valid_moves.len()); //doubt
+        let idx = rand::thread_rng().gen_range(0..valid_moves.len());
         let (row, col) = valid_moves[idx];
         self.make_move(row, col);
         Ok(())
@@ -227,19 +221,44 @@ impl GameBoard {
         if valid_moves.is_empty() {
             return Err("No valid moves available".into());
         }
+        //make a winning move
+        for i in 0..10 {
+            if let Some(coordinates) = self.get_coordinates(i) {
+                if valid_moves.contains(&coordinates) {
+                    if self.make_move(coordinates.0, coordinates.1) {
+                        if self.check_winner().is_none() {
+                            self.board[coordinates.0][coordinates.1] = ('0' as u8 + i) as char;
+                        } else {
+                            return Ok(());
+                        }
+                    }
+                }
+            }
+        }
 
+        //block a winning move
+        self.player_x_turn = !self.player_x_turn;
+        for i in 0..10 {
+            if let Some(coordinates) = self.get_coordinates(i) {
+                if valid_moves.contains(&coordinates) {
+                    if self.make_move(coordinates.0, coordinates.1) {
+                        if self.check_winner().is_some() {
+                            self.board[coordinates.0][coordinates.1] = 'O';
+                            self.player_x_turn = !self.player_x_turn;
+                            return Ok(());
+                        } else {
+                            self.board[coordinates.0][coordinates.1] = ('0' as u8 + i) as char;
+                        }
+                    }
+                }
+            }
+        }
+        self.player_x_turn = !self.player_x_turn;
         // block winning or take centers or corners
         let center = (2, 2);
         if valid_moves.contains(&center) {
             self.make_move(center.0, center.1);
             return Ok(());
-        }
-        let corners = [(0, 0), (0, 4), (4, 0), (4, 4)];
-        for corner in corners.iter() {
-            if valid_moves.contains(corner) {
-                self.make_move(corner.0, corner.1);
-                return Ok(());
-            }
         }
 
         let idx = rand::thread_rng().gen_range(0..valid_moves.len());
