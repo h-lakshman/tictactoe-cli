@@ -13,7 +13,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Welcome to TIC TAC TOE");
     draw_board(&board);
     loop {
-        let mut prompt: String = String::new();
         count += 1;
         if count == 10 {
             println!("Match draw");
@@ -24,11 +23,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         } else {
             println!("Player O,make a move");
         }
-        io::stdin()
-            .read_line(&mut prompt)
-            .expect("Please choose the correct input");
-        let prompt: u8 = prompt.trim().parse()?;
-        let (row, column): (usize, usize) = get_cordinates(prompt).unwrap();
+        let (mut row, mut column): (usize, usize);
+        loop {
+            let mut prompt: String = String::new();
+            io::stdin()
+                .read_line(&mut prompt)
+                .expect("Please choose the correct input");
+            let prompt: u8 = prompt.trim().parse()?;
+            (row, column) = get_cordinates(prompt).unwrap();
+            if board[row][column] != 'X' && board[row][column] != 'O' {
+                break;
+            } else {
+                println!("This is not valid cell,Please observe the valid cells and enter a number from 1-9:- ");
+            }
+        }
         board[row][column] = if player_x_turn { 'X' } else { 'O' };
         draw_board(&mut board);
         if let Some(winner) = check_winner(&board) {
@@ -39,6 +47,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     Ok(())
 }
+
 fn draw_board(board: &[[char; 5]; 5]) {
     for row in 0..5 {
         for column in 0..5 {
