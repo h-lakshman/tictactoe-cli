@@ -73,12 +73,12 @@ impl GameBoard {
         Ok(())
     }
     fn play_game(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        // Ensure game mode is set before starting
+        // check game_mode set or not
         //  let game_mode = self.game_mode.as_ref()
         //  .ok_or("Game mode not set")?;
         while !self.game_over && self.moves_count < 9 {
-            clearscreen::clear()?;
-            center_text("Tic Tac Toe");
+            // clearscreen::clear()?;
+            // center_text("Tic Tac Toe");
             self.draw_board();
 
             // if *game_mode == GameMode::TwoPlayer ||
@@ -88,9 +88,9 @@ impl GameBoard {
             //doubt
             {
                 center_text(if self.player_x_turn {
-                    "Player X's turn"
+                    "Player X's turn,Type a cell between 1-9"
                 } else {
-                    "Player O's turn"
+                    "Player O's turn,Type a cell between 1-9"
                 });
                 let mut input = String::new();
                 io::stdin().read_line(&mut input)?;
@@ -98,7 +98,7 @@ impl GameBoard {
 
                 if let Some((row, col)) = self.get_coordinates(position) {
                     if !self.make_move(row, col) {
-                        center_text("Invalid move! Try again.");
+                        center_text("Invalid move! Position already taken. Try again.");
                         continue;
                     }
                 } else {
@@ -109,7 +109,7 @@ impl GameBoard {
                 match self.game_mode {
                     Some(GameMode::EasyAi) => self.ai_move_easy()?,
                     Some(GameMode::HardAi) => self.ai_move_hard()?,
-                    _ => unreachable!(), //hard
+                    _ => unreachable!(), //doubt
                 }
             }
 
@@ -228,14 +228,20 @@ impl GameBoard {
             return Err("No valid moves available".into());
         }
 
-        // Simple implementation: try to block player's winning move or take center
+        // block winning or take centers or corners
         let center = (2, 2);
         if valid_moves.contains(&center) {
             self.make_move(center.0, center.1);
             return Ok(());
         }
+        let corners = [(0, 0), (0, 4), (4, 0), (4, 4)];
+        for corner in corners.iter() {
+            if valid_moves.contains(corner) {
+                self.make_move(corner.0, corner.1);
+                return Ok(());
+            }
+        }
 
-        // If no strategic move, make a random move
         let idx = rand::thread_rng().gen_range(0..valid_moves.len());
         let (row, col) = valid_moves[idx];
         self.make_move(row, col);
