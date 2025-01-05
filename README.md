@@ -18,8 +18,7 @@ Welcome to the **Tic Tac Toe CLI Game**! This is a simple, interactive game that
 ### Steps
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
-   cd <repository-folder>
+   git clone https://github.com/h-lakshman/tictactoe-cli.git
    ```
 
 2. Build the game using Cargo:
