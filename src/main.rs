@@ -31,6 +31,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let (row, column): (usize, usize) = get_cordinates(prompt).unwrap();
         board[row][column] = if player_x_turn { 'X' } else { 'O' };
         draw_board(&mut board);
+        if let Some(winner) = check_winner(&board) {
+            println!("Player {winner} wins!!");
+            break;
+        }
         player_x_turn = !player_x_turn;
     }
     Ok(())
@@ -55,5 +59,27 @@ fn get_cordinates(input: u8) -> Option<(usize, usize)> {
         8 => Some((4, 2)),
         9 => Some((4, 4)),
         _ => None,
+    }
+}
+
+fn check_winner(board: &[[char; 5]; 5]) -> Option<char> {
+    if board[0][0] == board[0][2] && board[0][2] == board[0][4] {
+        Some(board[0][0])
+    } else if board[2][0] == board[2][2] && board[2][2] == board[2][4] {
+        Some(board[2][0])
+    } else if board[4][0] == board[4][2] && board[4][2] == board[4][4] {
+        Some(board[4][0])
+    } else if board[0][0] == board[2][0] && board[2][0] == board[4][0] {
+        Some(board[0][0])
+    } else if board[0][2] == board[2][2] && board[2][2] == board[4][2] {
+        Some(board[0][2])
+    } else if board[0][4] == board[2][4] && board[2][4] == board[4][4] {
+        Some(board[0][4])
+    } else if board[0][0] == board[2][2] && board[2][2] == board[4][4] {
+        Some(board[0][0])
+    } else if board[0][4] == board[2][2] && board[2][2] == board[4][0] {
+        Some(board[0][4])
+    } else {
+        None
     }
 }
