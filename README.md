@@ -1,6 +1,6 @@
 # Tic Tac Toe CLI Game
 
-Welcome to the **Tic Tac Toe CLI Game**! This is a simple, interactive game that can be played directly from your terminal. Play against another player or test your skills against an AI opponent!
+Welcome to the **Tic Tac Toe CLI Game**! This is a simple, interactive game that can be played directly from your terminal.
 
 ## Features
 
